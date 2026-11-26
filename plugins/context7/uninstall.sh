@@ -27,4 +27,28 @@ has_claude_code && ctx7_remove "Claude Code" claude .claude/skills "Restart open
 has_cursor && ctx7_remove "Cursor" cursor .cursor/skills "Start a new chat"
 has_codex && ctx7_remove "Codex" codex .agents/skills "Restart Codex"
 
+# ctx7 keeps the Copilot CLI entry in mcp-config.json, so that file shows whether
+# there is anything to remove.
+if has_copilot_cli; then
+  copilot_mcp="${COPILOT_HOME:-$HOME/.copilot}/mcp-config.json"
+  if ! jq -e '.mcpServers.context7' "$copilot_mcp" &>/dev/null; then
+    ok "Copilot CLI" "Already removed."
+  elif quietly ctx7 remove --all --yes --copilot; then
+    ok "Copilot CLI" "Removed. Restart Copilot to unload it."
+  else
+    fail "Copilot CLI" "Could not remove Context7."
+  fi
+fi
+
+if has_copilot_jetbrains; then
+  mcp_json="$(copilot_jetbrains_dir)/mcp.json"
+  if ! jq -e '.servers.context7' "$mcp_json" &>/dev/null; then
+    ok "JetBrains" "Already removed."
+  elif quietly jq_set_file "$mcp_json" 'del(.servers.context7)'; then
+    ok "JetBrains" "Removed. Restart the IDE to unload it."
+  else
+    fail "JetBrains" "Could not remove Context7 from $mcp_json."
+  fi
+fi
+
 finish

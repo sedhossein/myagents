@@ -2,7 +2,7 @@
 
 [![Build](https://github.com/RashadAnsari/myagents/actions/workflows/build.yml/badge.svg)](https://github.com/RashadAnsari/myagents/actions/workflows/build.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-![Platforms](https://img.shields.io/badge/works%20with-Claude%20Code%20%7C%20Cursor%20%7C%20Codex-555)
+![Platforms](https://img.shields.io/badge/works%20with-Claude%20Code%20%7C%20Cursor%20%7C%20Codex%20%7C%20Copilot-555)
 
 **One command to give every AI coding agent you use the same memory, reviewers, and working rules.**
 
@@ -160,22 +160,24 @@ It ships seven skills: `ui-ux-pro-max`, `design`, `design-system`, `ui-styling` 
 
 ## Platform support
 
-| | Claude Code | Cursor | Codex |
-|---|:---:|:---:|:---:|
-| agent-memory | ✓ | ✓ | ✓ after `/hooks` |
-| albino | ✓ | ✓ | ✓ after `/hooks` |
-| archify | ✓ | ✓ | ✓ |
-| context7 | ✓ | ✓ | ✓ |
-| emil-skills | ✓ | ✓ | ✓ |
-| ponytail | ✓ | ✓ | ✓ after `/hooks` |
-| security-audit | ✓ | ✓ | ✓ |
-| ui-ux-pro-max | ✓ | ✓ | ✓ |
+| | Claude Code | Cursor | Codex | Copilot |
+|---|:---:|:---:|:---:|:---:|
+| agent-memory | ✓ | ✓ | ✓ after `/hooks` | – |
+| albino | ✓ | ✓ | ✓ after `/hooks` | skills and rules |
+| archify | ✓ | ✓ | ✓ | ✓ |
+| context7 | ✓ | ✓ | ✓ | ✓ |
+| emil-skills | ✓ | ✓ | ✓ | ✓ |
+| ponytail | ✓ | ✓ | ✓ after `/hooks` | – |
+| security-audit | ✓ | ✓ | ✓ | ✓ |
+| ui-ux-pro-max | ✓ | ✓ | ✓ | ✓ |
+
+Copilot means Copilot CLI, the GitHub Copilot plugin for JetBrains IDEs, and the Copilot agent in JetBrains AI chat. They share their skills (`~/.copilot/skills`), instructions, and MCP servers, so one install configures all three. Albino's skills and rules reach Copilot, but not its review agents or hooks. In JetBrains, turn on Settings > GitHub Copilot > Chat > Agent > Agent Skills (a preview feature) to use skills.
 
 ---
 
 ## Installing, updating, and uninstalling
 
-**Installing.** Run the command from [Quick start](#quick-start). The installer downloads this repository to `~/.myagents`, installs any missing tools from [`requirements.list`](requirements.list) with Homebrew (installing Homebrew first if needed, which may ask for your password), then sets up every plugin in each of Claude Code, Cursor, and Codex that it finds. Tools you already have are left alone. `git` and `python3` come with the Xcode Command Line Tools (`xcode-select --install`).
+**Installing.** Run the command from [Quick start](#quick-start). The installer downloads this repository to `~/.myagents`, installs any missing tools from [`requirements.list`](requirements.list) with Homebrew (installing Homebrew first if needed, which may ask for your password), then sets up every plugin in each of Claude Code, Cursor, Codex, and Copilot that it finds. Tools you already have are left alone. `git` and `python3` come with the Xcode Command Line Tools (`xcode-select --install`).
 
 Each line of the output says what to do next, such as restarting a tool, signing in to Context7, or running `/hooks` once in Codex to trust the hooks.
 

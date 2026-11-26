@@ -12,9 +12,11 @@ set -euo pipefail
 #           Cursor globs gets the same patterns as Claude Code paths.
 #   codex:  one block between albino markers in ~/.codex/AGENTS.md, holding
 #           every rule. Text outside the markers is never touched.
+#   copilot: the same block, in a Copilot instructions file (~/.copilot/copilot-instructions.md
+#           for Copilot CLI, global-copilot-instructions.md for the JetBrains plugin).
 #
-# Usage: sync-rules.sh install|uninstall claude|codex <target>
-#   <target> is the rules directory for claude and the AGENTS.md file for codex.
+# Usage: sync-rules.sh install|uninstall claude|codex|copilot <target>
+#   <target> is the rules directory for claude and the instructions file for codex and copilot.
 # Prints "changed" or "unchanged". Files and blocks it writes carry an albino
 # marker, so it never touches rules or text the user wrote.
 
@@ -22,7 +24,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 RULES_DIR="$SCRIPT_DIR/../rules"
 
 if [ $# -ne 3 ]; then
-  echo "Usage: sync-rules.sh install|uninstall claude|codex <target>" >&2
+  echo "Usage: sync-rules.sh install|uninstall claude|codex|copilot <target>" >&2
   exit 2
 fi
 
@@ -109,7 +111,7 @@ if platform == "claude":
             dest.unlink()
             changed = True
 
-elif platform == "codex":
+elif platform in ("codex", "copilot"):
     current = target.read_text() if target.exists() else ""
     match = BLOCK.search(current)
     rest = current

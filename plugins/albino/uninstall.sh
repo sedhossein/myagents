@@ -13,6 +13,8 @@ CLAUDE_PLUGINS_DIR="$HOME/.claude/plugins"
 CLAUDE_RULES_DIR="$HOME/.claude/rules"
 CURSOR_PLUGIN_LINK="$HOME/.cursor/plugins/local/$PLUGIN_NAME"
 
+COPILOT_HOME="${COPILOT_HOME:-$HOME/.copilot}"
+
 CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
 CODEX_PROMPTS_DIR="$CODEX_HOME/prompts"
 CODEX_AGENTS_DIR="$CODEX_HOME/agents"
@@ -104,7 +106,15 @@ PY
 fi
 
 if has_cursor; then
-  if [ -L "$CURSOR_PLUGIN_LINK" ]; then
+  albino_skills=()
+  for dir in "$PLUGIN_SRC"/skills/*/; do albino_skills+=("$(basename "$dir")"); done
+  albino_agents=()
+  for file in "$PLUGIN_SRC"/agents/*.md; do albino_agents+=("$(basename "$file" .md)"); done
+  copies_left=false
+  for name in "${albino_skills[@]}"; do [ -f "$HOME/.cursor/skills/$name/.myagents" ] && copies_left=true; done
+  remove_copied_skills "$HOME/.cursor/skills" "${albino_skills[@]}"
+  remove_copied_agents "$HOME/.cursor/agents" "${albino_agents[@]}"
+  if [ -L "$CURSOR_PLUGIN_LINK" ] || [ "$copies_left" = true ]; then
     rm -f "$CURSOR_PLUGIN_LINK"
     ok "Cursor" "Removed. Run 'Developer: Reload Window' to unload it."
   else
@@ -154,6 +164,33 @@ if has_codex; then
     ok "Codex" "Removed. Restart Codex to unload it."
   else
     ok "Codex" "Already removed."
+  fi
+fi
+
+# Copilot: remove the skill links and the albino blocks from the instructions files.
+if has_copilot; then
+  copilot_changed=false
+  copilot_failed=false
+  albino_skills=()
+  for dir in "$PLUGIN_SRC"/skills/*/; do albino_skills+=("$(basename "$dir")"); done
+  for name in "${albino_skills[@]}"; do
+    [ -L "$(copilot_skills_dir)/$name" ] && copilot_changed=true
+  done
+  unlink_skills "$(copilot_skills_dir)" "${albino_skills[@]}"
+  for file in "$COPILOT_HOME/copilot-instructions.md" "$(copilot_jetbrains_dir)/global-copilot-instructions.md"; do
+    if ! quietly "$PLUGIN_SRC/scripts/sync-rules.sh" uninstall copilot "$file"; then
+      fail "Copilot" "Could not remove the albino rules from $file."
+      copilot_failed=true
+    elif [ "$quiet_output" = "changed" ]; then
+      copilot_changed=true
+    fi
+  done
+  if [ "$copilot_failed" = true ]; then
+    :
+  elif [ "$copilot_changed" = true ]; then
+    ok "Copilot" "Removed. Start a new Copilot chat to unload it."
+  else
+    ok "Copilot" "Already removed."
   fi
 fi
 

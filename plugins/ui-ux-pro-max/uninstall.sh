@@ -29,5 +29,9 @@ uipro_remove() {
 has_claude_code && claude_marketplace_plugin_remove ui-ux-pro-max-skill ui-ux-pro-max
 has_cursor && uipro_remove "Cursor" cursor .cursor/skills "Start a new chat"
 has_codex && uipro_remove "Codex" codex .agents/skills "Restart Codex"
+if has_copilot; then
+  uipro_remove "Copilot" universal .agents/skills "Start a new Copilot chat"
+  unlink_skills "$(copilot_skills_dir)" ui-ux-pro-max design design-system ui-styling brand banner-design slides
+fi
 
 finish

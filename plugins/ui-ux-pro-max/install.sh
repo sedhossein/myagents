@@ -13,6 +13,8 @@ REPO_URL="https://github.com/nextlevelbuilder/ui-ux-pro-max-skill.git"
 # the same latest release without leaving a global package behind.
 uipro() { npx -y ui-ux-pro-max-cli@latest "$@"; }
 
+UIPRO_SKILLS=(ui-ux-pro-max design design-system ui-styling brand banner-design slides)
+
 # --force overwrites the files from an earlier install, so a rerun updates them.
 uipro_install() {
   local label="$1" ai="$2" hint="$3"
@@ -28,5 +30,13 @@ uipro_install() {
 has_claude_code && claude_marketplace_plugin "$REPO_URL" ui-ux-pro-max-skill ui-ux-pro-max
 has_cursor && uipro_install "Cursor" cursor "Start a new chat"
 has_codex && uipro_install "Codex" codex "Restart Codex"
+
+# The universal target installs into ~/.agents/skills, which Copilot does not read, so
+# its skills are linked into the folder Copilot does read.
+if has_copilot; then
+  uipro_install "Copilot" universal "Start a new Copilot chat"
+  quietly link_skills "$(copilot_skills_dir)" "${UIPRO_SKILLS[@]/#/$HOME/.agents/skills/}" \
+    || fail "Copilot" "Could not link the skills into $(copilot_skills_dir)."
+fi
 
 finish

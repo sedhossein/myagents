@@ -14,6 +14,8 @@ KNOWN_MARKETPLACES_JSON="$CLAUDE_PLUGINS_DIR/known_marketplaces.json"
 CLAUDE_SETTINGS_JSON="$HOME/.claude/settings.json"
 CLAUDE_RULES_DIR="$HOME/.claude/rules"
 
+COPILOT_HOME="${COPILOT_HOME:-$HOME/.copilot}"
+
 CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
 CODEX_PROMPTS_DIR="$CODEX_HOME/prompts"
 CODEX_AGENTS_DIR="$CODEX_HOME/agents"
@@ -106,7 +108,12 @@ PY
 fi
 
 if has_cursor; then
-  if quietly link_dir "$PLUGIN_SRC" "$HOME/.cursor/plugins/local/$PLUGIN_NAME"; then
+  # The Cursor app loads the plugin, but the Cursor agent in other hosts, such as
+  # the JetBrains AI chat, does not. It reads skills and subagents from ~/.cursor,
+  # so albino's are copied there too (see copy_skills in the library).
+  if quietly link_dir "$PLUGIN_SRC" "$HOME/.cursor/plugins/local/$PLUGIN_NAME" \
+    && quietly copy_skills "$HOME/.cursor/skills" "$PLUGIN_SRC"/skills/*/ \
+    && quietly copy_agents "$HOME/.cursor/agents" "$PLUGIN_SRC"/agents/*.md; then
     ok "Cursor" "Installed. Run 'Developer: Reload Window' to load it."
   else
     fail "Cursor" "Could not link the plugin into ~/.cursor/plugins/local/."
@@ -142,6 +149,29 @@ if has_codex; then
     fi
   else
     fail "Codex" "Could not install $PLUGIN_NAME."
+  fi
+fi
+
+# Copilot CLI, its JetBrains plugin, and the Copilot agent in JetBrains AI chat share
+# two things: personal skills in ~/.copilot/skills, and personal instructions, which
+# carry the rules. Copilot has no plugin format that loads from the marketplace here,
+# so albino's skills are linked in and its rules are written as a marked block.
+if has_copilot; then
+  copilot_ok=true
+  if ! quietly link_skills "$(copilot_skills_dir)" "$PLUGIN_SRC"/skills/*/; then
+    fail "Copilot" "Could not link the albino skills into $(copilot_skills_dir)."
+    copilot_ok=false
+  fi
+  if has_copilot_cli && ! quietly "$PLUGIN_SRC/scripts/sync-rules.sh" install copilot "$COPILOT_HOME/copilot-instructions.md"; then
+    fail "Copilot" "Could not write the albino rules to $COPILOT_HOME/copilot-instructions.md."
+    copilot_ok=false
+  fi
+  if has_copilot_jetbrains && ! quietly "$PLUGIN_SRC/scripts/sync-rules.sh" install copilot "$(copilot_jetbrains_dir)/global-copilot-instructions.md"; then
+    fail "Copilot" "Could not write the albino rules to $(copilot_jetbrains_dir)."
+    copilot_ok=false
+  fi
+  if [ "$copilot_ok" = true ]; then
+    ok "Copilot" "Installed. Start a new Copilot chat to load it."
   fi
 fi
 
