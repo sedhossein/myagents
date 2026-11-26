@@ -167,7 +167,8 @@ if has_codex; then
   fi
 fi
 
-# Copilot: remove the skill links and the albino blocks from the instructions files.
+# Copilot: remove the plugin, the skill links, and the albino blocks from the instructions files.
+has_copilot_cli && copilot_marketplace_plugin_remove "$MYAGENTS_MARKETPLACE" "$PLUGIN_NAME"
 if has_copilot; then
   copilot_changed=false
   copilot_failed=false

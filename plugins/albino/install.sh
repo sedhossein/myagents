@@ -152,10 +152,13 @@ if has_codex; then
   fi
 fi
 
-# Copilot CLI, its JetBrains plugin, and the Copilot agent in JetBrains AI chat share
-# two things: personal skills in ~/.copilot/skills, and personal instructions, which
-# carry the rules. Copilot has no plugin format that loads from the marketplace here,
-# so albino's skills are linked in and its rules are written as a marked block.
+# Copilot CLI installs the plugin from the same marketplace as Claude Code, which
+# brings the reviewer agents too; the JetBrains plugin and the Copilot agent in
+# JetBrains AI chat load what it installs. They also share two folders that work
+# without the CLI: personal skills in ~/.copilot/skills, and personal instructions,
+# which carry the rules. So the skills are linked in and the rules are written as
+# a marked block as well, which lists each skill a second time (as albino:<skill>).
+has_copilot_cli && copilot_marketplace_plugin "$MYAGENTS_DIR" "$MYAGENTS_MARKETPLACE" "$PLUGIN_NAME"
 if has_copilot; then
   copilot_ok=true
   if ! quietly link_skills "$(copilot_skills_dir)" "$PLUGIN_SRC"/skills/*/; then

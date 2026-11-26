@@ -28,6 +28,7 @@ fi
 
 has_claude_code && claude_marketplace_plugin_remove ponytail ponytail
 has_codex && codex_marketplace_plugin_remove ponytail ponytail
+has_copilot_cli && copilot_marketplace_plugin_remove ponytail ponytail
 
 # Reported last to match the platform order of install.sh.
 case "$cleanup_result" in

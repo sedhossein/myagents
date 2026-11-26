@@ -68,111 +68,6 @@ copilot_jetbrains_dir() {
 has_copilot_jetbrains() { [ -d "$(copilot_jetbrains_dir)" ]; }
 has_copilot() { has_copilot_cli || has_copilot_jetbrains; }
 
-# Copilot CLI, its JetBrains plugin, and the Copilot agent in JetBrains AI chat all
-# read personal skills from this folder, not from ~/.agents/skills.
-copilot_skills_dir() { echo "${COPILOT_HOME:-$HOME/.copilot}/skills"; }
-
-# Rewrites a JSON file with a jq filter (extra arguments go to jq), creating it
-# as {} first. Never leaves a half-written file behind.
-jq_set_file() {
-  local file="$1" filter="$2" tmp
-  shift 2
-  need jq
-  mkdir -p "$(dirname "$file")"
-  [ -s "$file" ] || echo '{}' >"$file"
-  tmp="$(mktemp "$file.XXXXXX")"
-  if jq "$@" "$filter" "$file" >"$tmp"; then
-    mv "$tmp" "$file"
-  else
-    rm -f "$tmp"
-    return 1
-  fi
-}
-
-# Symlinks each skill folder given into <dest>, for tools that read only <dest>.
-# A name that already exists there and is not a stale link of ours is the user's
-# own, so it is left alone.
-link_skills() {
-  local dest="$1" src name
-  shift
-  mkdir -p "$dest"
-  for src in "$@"; do
-    src="${src%/}"
-    name="$(basename "$src")"
-    [ -f "$src/SKILL.md" ] || continue
-    if [ -L "$dest/$name" ] && [ ! -e "$dest/$name" ]; then rm -f "$dest/$name"; fi
-    [ -e "$dest/$name" ] || [ -L "$dest/$name" ] || ln -s "$src" "$dest/$name"
-  done
-}
-
-# Cursor skips symlinked skill and agent folders when it runs inside another host,
-# such as the JetBrains AI chat, which also does not load Cursor plugins. So a
-# plugin's skills and agents are copied into ~/.cursor, and each copy is marked as
-# ours, so a rerun refreshes it and an item the user wrote is never overwritten.
-MANAGED_MARK="managed by myagents"
-
-# copy_skills <dest> <skill dir>...: one folder per skill, with a marker file inside.
-copy_skills() {
-  local dest="$1" src name
-  shift
-  mkdir -p "$dest"
-  for src in "$@"; do
-    src="${src%/}"
-    name="$(basename "$src")"
-    [ -f "$src/SKILL.md" ] || continue
-    if [ -e "$dest/$name" ] && [ ! -f "$dest/$name/.myagents" ]; then continue; fi
-    rm -rf "${dest:?}/$name"
-    cp -R "$src" "$dest/$name"
-    echo "$MANAGED_MARK" >"$dest/$name/.myagents"
-  done
-}
-
-# copy_agents <dest> <agent file>...: each file gets a marker comment at the end.
-copy_agents() {
-  local dest="$1" src target
-  shift
-  mkdir -p "$dest"
-  for src in "$@"; do
-    [ -f "$src" ] || continue
-    target="$dest/$(basename "$src")"
-    if [ -e "$target" ] && ! grep -qF "<!-- $MANAGED_MARK -->" "$target"; then continue; fi
-    { cat "$src"; printf '\n<!-- %s -->\n' "$MANAGED_MARK"; } >"$target"
-  done
-}
-
-# Remove only the copies the two functions above marked, by name.
-remove_copied_skills() {
-  local dest="$1" name
-  shift
-  for name in "$@"; do
-    [ -f "$dest/$name/.myagents" ] && rm -rf "${dest:?}/$name"
-  done
-  return 0
-}
-remove_copied_agents() {
-  local dest="$1" name
-  shift
-  for name in "$@"; do
-    if grep -qF "<!-- $MANAGED_MARK -->" "$dest/$name.md" 2>/dev/null; then rm -f "$dest/$name.md"; fi
-  done
-  return 0
-}
-
-# Removes the links link_skills made for the named skills, and only links that
-# point into a folder myagents installs skills to.
-unlink_skills() {
-  local dest="$1" name target
-  shift
-  for name in "$@"; do
-    [ -L "$dest/$name" ] || continue
-    target="$(readlink "$dest/$name")"
-    case "$target" in
-      "$HOME/.agents/skills/"* | "$HOME/.cursor/skills/"* | "$MYAGENTS_DIR/"*) rm -f "$dest/$name" ;;
-    esac
-  done
-  return 0
-}
-
 # Exits the plugin script with an install hint when a required tool is missing.
 need() {
   if ! command -v "$1" &>/dev/null; then
@@ -441,3 +336,8 @@ ensure_homebrew() {
     ok "Homebrew" "Added to PATH in ~/${profile##*/}."
   fi
 }
+
+# Helpers for hosts that read skills, instructions, and MCP servers from folders:
+# Copilot, and the Cursor agent when it runs outside the Cursor app.
+# shellcheck source=install-lib-hosts.sh
+source "$(dirname "${BASH_SOURCE[0]}")/install-lib-hosts.sh"

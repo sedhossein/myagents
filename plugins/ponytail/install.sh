@@ -15,6 +15,7 @@ fi
 
 has_claude_code && claude_marketplace_plugin "$REPO_URL" ponytail ponytail
 has_codex && codex_marketplace_plugin "$REPO_URL" ponytail ponytail
+has_copilot_cli && copilot_marketplace_plugin "$REPO_URL" ponytail ponytail
 
 # Cursor has no ponytail plugin. Its hook installer adds two hooks to
 # ~/.cursor/hooks.json that run node scripts from a checkout, and replaces its

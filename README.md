@@ -162,16 +162,18 @@ It ships seven skills: `ui-ux-pro-max`, `design`, `design-system`, `ui-styling` 
 
 | | Claude Code | Cursor | Codex | Copilot |
 |---|:---:|:---:|:---:|:---:|
-| agent-memory | ✓ | ✓ | ✓ after `/hooks` | – |
-| albino | ✓ | ✓ | ✓ after `/hooks` | skills and rules |
+| agent-memory | ✓ | ✓ | ✓ after `/hooks` | ✓ |
+| albino | ✓ | ✓ | ✓ after `/hooks` | ✓ |
 | archify | ✓ | ✓ | ✓ | ✓ |
 | context7 | ✓ | ✓ | ✓ | ✓ |
 | emil-skills | ✓ | ✓ | ✓ | ✓ |
-| ponytail | ✓ | ✓ | ✓ after `/hooks` | – |
+| ponytail | ✓ | ✓ | ✓ after `/hooks` | ✓ |
 | security-audit | ✓ | ✓ | ✓ | ✓ |
 | ui-ux-pro-max | ✓ | ✓ | ✓ | ✓ |
 
-Copilot means Copilot CLI, the GitHub Copilot plugin for JetBrains IDEs, and the Copilot agent in JetBrains AI chat. They share their skills (`~/.copilot/skills`), instructions, and MCP servers, so one install configures all three. Albino's skills and rules reach Copilot, but not its review agents or hooks. In JetBrains, turn on Settings > GitHub Copilot > Chat > Agent > Agent Skills (a preview feature) to use skills.
+Copilot means Copilot CLI, the GitHub Copilot plugin for JetBrains IDEs, and the Copilot agent in JetBrains AI chat. Copilot CLI installs agent-memory, albino, and ponytail as plugins (skills, reviewer agents, and MCP servers; the other two tools load what it installs), and the Skills CLI plugins are linked into `~/.copilot/skills`. Albino's and agent-memory's rules are written into the Copilot instructions files, because JetBrains has no hooks. Albino's skills then show twice in Copilot, plain and as `albino:<skill>`. In JetBrains, turn on Settings > GitHub Copilot > Chat > Agent > Agent Skills (a preview feature) to use skills.
+
+The Cursor agent in JetBrains AI chat does not load Cursor plugins, so albino's and agent-memory's skills, albino's reviewer agents, and the agent-memory MCP server are copied into `~/.cursor`. That agent reads no user-level rule files, so the albino and agent-memory rules and hooks do not apply there. Copies are refreshed on every install.
 
 ---
 
