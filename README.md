@@ -54,6 +54,12 @@ emil-skills
   ✓ Cursor          Installed. Start a new chat to load it.
   ✓ Codex           Installed. Restart Codex to load it.
 
+graphify
+  ✓ Claude Code     Installed. Restart open sessions to load it.
+  ✓ Cursor          Installed. Start a new chat to load it.
+  ✓ Codex           Installed. Restart Codex to load it.
+  ✓ Git             Ignores graphify-out/ in every repository (~/.config/git/ignore).
+
 ponytail
   ✓ Claude Code     Installed. Restart open sessions to load it.
   ✓ Codex           Installed. Restart Codex, then run /hooks once to trust its hooks.
@@ -80,6 +86,7 @@ Summary
   ✓ archify         Ready.
   ✓ context7        Ready.
   ✓ emil-skills     Ready.
+  ✓ graphify        Ready.
   ✓ ponytail        Ready.
   ✓ rtk             Ready.
   ✓ security-audit  Ready.
@@ -110,7 +117,7 @@ The diagram is generated with [archify](#archify) from [docs/architecture.json](
 ## Contents
 
 - [Architecture](#architecture)
-- [Plugins](#plugins): [agent-memory](#agent-memory), [albino](#albino), [archify](#archify), [context7](#context7), [emil-skills](#emil-skills), [ponytail](#ponytail), [rtk](#rtk), [security-audit](#security-audit), [ui-ux-pro-max](#ui-ux-pro-max)
+- [Plugins](#plugins): [agent-memory](#agent-memory), [albino](#albino), [archify](#archify), [context7](#context7), [emil-skills](#emil-skills), [graphify](#graphify), [ponytail](#ponytail), [rtk](#rtk), [security-audit](#security-audit), [ui-ux-pro-max](#ui-ux-pro-max)
 - [Platform support](#platform-support)
 - [Installing, updating, and uninstalling](#installing-updating-and-uninstalling)
 - [Contributing](#contributing)
@@ -146,6 +153,12 @@ Sign in once per tool, so no API key is stored on disk: run `/mcp` in Claude Cod
 
 [Emil Kowalski's skills](https://github.com/emilkowalski/skills) teach agents the small interface details they tend to get wrong: the right easing and duration for an animation, a soft shadow instead of a hard border, motion that does not drop frames. They draw on his work at Vercel and Linear. The set covers building, reviewing, and auditing animations (`animate`, `animate-expo`, `review-animations`, `improve-animations`, `find-animation-opportunities`, `animation-performance`, `animation-vocabulary`), general design (`emil-design-eng`, `apple-design`, `mobile-native`, `break-ui`, `prototype`, `pick-ui-library`), Swift (`write-swift`), and his Sonner toast library (`ask-sonner`). They complement albino's `frontend-design` skill, which sets a visual direction, and ui-ux-pro-max, which supplies styles and palettes; these focus on motion and polish.
 
+### graphify
+
+[graphify](https://github.com/Graphify-Labs/graphify) by Graphify Labs is a third-party plugin that turns a project's code, docs, and configs into a knowledge graph an agent can query instead of grepping files: `graphify query`, `path`, `explain`, and `affected`. Code is parsed locally with no model, so a code-only graph is free and needs no API key. The installer installs the `graphify` command with `uv` when it is missing, then runs `graphify install` for each tool it finds, and adds a short rule that tells the agent when to use the graph. It also adds `graphify-out/` to your global git ignore, so a graph is never committed by accident.
+
+Each project has its own graph, in its own `graphify-out/` folder, and nothing is built until you ask. In a project, run `/graphify .` once (Codex: `$graphify .`), or `graphify extract . --code-only` for a code-only graph. After that the agent uses the graph for architecture and "what calls X" questions, and runs `graphify update .` after code changes. `graphify hook install` rebuilds it on every commit. The uninstaller keeps the `graphify` command and every `graphify-out/` folder.
+
 ### ponytail
 
 [ponytail](https://github.com/DietrichGebert/ponytail) by Dietrich Gebert is a third-party plugin that pushes agents toward the shortest solution that works: YAGNI, standard library first, no abstractions nobody asked for.
@@ -177,6 +190,7 @@ It ships seven skills: `ui-ux-pro-max`, `design`, `design-system`, `ui-styling` 
 | archify | ✓ | ✓ | ✓ | ✓ |
 | context7 | ✓ | ✓ | ✓ | ✓ |
 | emil-skills | ✓ | ✓ | ✓ | ✓ |
+| graphify | ✓ | ✓ | ✓ | ✓ |
 | ponytail | ✓ | ✓ | ✓ after `/hooks` | ✓ |
 | rtk | ✓ | ✓ | ✓ | ✓ |
 | security-audit | ✓ | ✓ | ✓ | ✓ |

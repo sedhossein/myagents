@@ -11,8 +11,13 @@ drop_rule() {
   local file
   for file in "$@"; do
     [ -f "$file" ] || continue
-    quietly instructions_block uninstall "$file" graphify || return 1
-    [ "$quiet_output" = "changed" ] && rule_changed=true
+    case "$file" in
+      */.claude/rules/*)
+        if grep -qF "<!-- $MANAGED_MARK -->" "$file"; then rm -f "$file"; rule_changed=true; fi ;;
+      *)
+        quietly instructions_block uninstall "$file" graphify || return 1
+        [ "$quiet_output" = "changed" ] && rule_changed=true ;;
+    esac
   done
   return 0
 }
@@ -36,7 +41,7 @@ host_report() {
 }
 
 # $3 succeeds while the tool still has graphify's skill.
-has_claude_code && host_report "Claude Code" "Restart open sessions" '[ -f "$HOME/.claude/skills/graphify/SKILL.md" ]' "$HOME/.claude/CLAUDE.md"
+has_claude_code && host_report "Claude Code" "Restart open sessions" '[ -f "$HOME/.claude/skills/graphify/SKILL.md" ]' "$HOME/.claude/rules/graphify.md"
 has_cursor && host_report "Cursor" "Start a new chat" '[ -f "$HOME/.agents/skills/graphify/SKILL.md" ]'
 has_codex && host_report "Codex" "Restart Codex" '[ -f "${CODEX_HOME:-$HOME/.codex}/skills/graphify/SKILL.md" ]' "${CODEX_HOME:-$HOME/.codex}/AGENTS.md"
 if has_copilot; then
