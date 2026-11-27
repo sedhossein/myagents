@@ -59,6 +59,11 @@ ponytail
   ✓ Codex           Installed. Restart Codex, then run /hooks once to trust its hooks.
   ✓ Cursor          Installed. Start a new chat to load it.
 
+rtk
+  ✓ Claude Code     Installed. Restart open sessions to load it.
+  ✓ Cursor          Installed. Start a new chat to load it.
+  ✓ Codex           Installed. Restart Codex to load it.
+
 security-audit
   ✓ Claude Code     Installed. Restart open sessions to load it.
   ✓ Cursor          Installed. Start a new chat to load it.
@@ -76,6 +81,7 @@ Summary
   ✓ context7        Ready.
   ✓ emil-skills     Ready.
   ✓ ponytail        Ready.
+  ✓ rtk             Ready.
   ✓ security-audit  Ready.
   ✓ ui-ux-pro-max   Ready.
 ```
@@ -104,7 +110,7 @@ The diagram is generated with [archify](#archify) from [docs/architecture.json](
 ## Contents
 
 - [Architecture](#architecture)
-- [Plugins](#plugins): [agent-memory](#agent-memory), [albino](#albino), [archify](#archify), [context7](#context7), [emil-skills](#emil-skills), [ponytail](#ponytail), [security-audit](#security-audit), [ui-ux-pro-max](#ui-ux-pro-max)
+- [Plugins](#plugins): [agent-memory](#agent-memory), [albino](#albino), [archify](#archify), [context7](#context7), [emil-skills](#emil-skills), [ponytail](#ponytail), [rtk](#rtk), [security-audit](#security-audit), [ui-ux-pro-max](#ui-ux-pro-max)
 - [Platform support](#platform-support)
 - [Installing, updating, and uninstalling](#installing-updating-and-uninstalling)
 - [Contributing](#contributing)
@@ -144,6 +150,10 @@ Sign in once per tool, so no API key is stored on disk: run `/mcp` in Claude Cod
 
 [ponytail](https://github.com/DietrichGebert/ponytail) by Dietrich Gebert is a third-party plugin that pushes agents toward the shortest solution that works: YAGNI, standard library first, no abstractions nobody asked for.
 
+### rtk
+
+[rtk](https://github.com/rtk-ai/rtk) is a command-line proxy that condenses the output of commands such as `git`, `ls`, `grep`, test runners, and `docker` before it reaches the model, which saves tokens. The installer installs it with Homebrew when it is missing, then runs `rtk init` for each tool it finds: a hook that rewrites shell commands, plus a short note telling the agent the output is condensed. Run `rtk gain` to see what it saved, and `rtk bypass <cmd>` when you need a command's raw output.
+
 ### security-audit
 
 [security-audit](https://github.com/cloudflare/security-audit-skill) by Cloudflare is the skill that seeded Cloudflare's vulnerability discovery harness. Ask for a security audit and it runs isolated agents through reconnaissance, coverage-led hunting, and validation, where a fresh agent tries to disprove every finding, then writes a report with confirmed findings and open leads. Reports default to `~/security-audit-skill/<repo-name>/`. It complements albino's `security-reviewer`, which gives a quicker single-pass review.
@@ -168,6 +178,7 @@ It ships seven skills: `ui-ux-pro-max`, `design`, `design-system`, `ui-styling` 
 | context7 | ✓ | ✓ | ✓ | ✓ |
 | emil-skills | ✓ | ✓ | ✓ | ✓ |
 | ponytail | ✓ | ✓ | ✓ after `/hooks` | ✓ |
+| rtk | ✓ | ✓ | ✓ | ✓ |
 | security-audit | ✓ | ✓ | ✓ | ✓ |
 | ui-ux-pro-max | ✓ | ✓ | ✓ | ✓ |
 
