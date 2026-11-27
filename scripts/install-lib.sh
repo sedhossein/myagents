@@ -174,6 +174,7 @@ codex_marketplace_plugin_remove() {
 _skills_cli_agents() {
   has_claude_code && echo "claude-code|Claude Code|Restart open sessions"
   has_cursor && echo "cursor|Cursor|Start a new chat"
+  has_opencode && echo "opencode|OpenCode|Restart OpenCode"
   has_codex && echo "codex|Codex|Restart Codex"
   # Copilot CLI and the JetBrains plugin both read skills from ~/.agents/skills.
   { has_copilot_cli || has_copilot_jetbrains; } && echo "github-copilot|Copilot|Restart Copilot"

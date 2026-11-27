@@ -32,6 +32,21 @@ if has_cursor; then
   fi
 fi
 
+# OpenCode: skills linked from the checkout, the MCP server registered by key in
+# opencode.jsonc (a file with comments is left alone and reported), and the rule
+# written into its global AGENTS.md.
+if has_opencode; then
+  PLUGIN_DIR="$CHECKOUT_DIR/plugins/agent-memory"
+  if quietly sync_checkout "$REPO_URL" "$CHECKOUT_DIR" \
+    && quietly link_skills "$(opencode_dir)/skills" "$PLUGIN_DIR"/skills/*/ \
+    && quietly jq_set_file "$(opencode_dir)/opencode.jsonc" '.mcp.servers["agent-memory"] = {type: "local", command: ["bash", "-c", ("exec \"" + $dir + "/scripts/run-with-uv.sh\" run --directory \"" + $dir + "/mcp-servers/agent-memory\" agent-memory")]}' --arg dir "$PLUGIN_DIR" \
+    && quietly instructions_block install "$(opencode_dir)/AGENTS.md" agent-memory "$PLUGIN_DIR/rules/agent-memory.mdc"; then
+    ok "OpenCode" "Installed. Start a new session to load it."
+  else
+    fail "OpenCode" "Could not set up agent-memory in $(opencode_dir). Check that opencode.jsonc is plain JSON without comments."
+  fi
+fi
+
 has_codex && codex_marketplace_plugin "$REPO_URL" agent-memory agent-memory
 
 # Copilot CLI installs the plugin (skills, MCP server, hooks) from the repository's

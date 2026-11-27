@@ -30,4 +30,15 @@ if has_cursor; then
   fi
 fi
 
+# OpenCode: ponytail's skills are linked from the checkout. Its hooks have no
+# OpenCode form, so the skill's own description triggers it.
+if has_opencode; then
+  if quietly sync_checkout "$REPO_URL" "$CHECKOUT_DIR" \
+    && quietly link_skills "$(opencode_dir)/skills" "$CHECKOUT_DIR"/skills/*/; then
+    ok "OpenCode" "Installed. Start a new session to load it."
+  else
+    fail "OpenCode" "Could not link ponytail's skills into $(opencode_dir)/skills."
+  fi
+fi
+
 finish

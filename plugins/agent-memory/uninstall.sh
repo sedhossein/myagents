@@ -30,6 +30,28 @@ if has_cursor; then
   fi
 fi
 
+if has_opencode; then
+  oc_file="$(opencode_dir)/opencode.jsonc"
+  oc_names=()
+  for dir in "$CHECKOUT_DIR"/plugins/agent-memory/skills/*/; do
+    [ -d "$dir" ] && oc_names+=("$(basename "$dir")")
+  done
+  oc_left=false
+  for name in ${oc_names[@]+"${oc_names[@]}"}; do [ -L "$(opencode_dir)/skills/$name" ] && oc_left=true; done
+  jq -e '.mcp.servers["agent-memory"]' "$oc_file" &>/dev/null && oc_left=true
+  quietly instructions_block uninstall "$(opencode_dir)/AGENTS.md" agent-memory && [ "$quiet_output" = "changed" ] && oc_left=true
+  if quietly unlink_skills "$(opencode_dir)/skills" ${oc_names[@]+"${oc_names[@]}"} \
+    && { [ ! -f "$oc_file" ] || ! jq -e '.mcp.servers["agent-memory"]' "$oc_file" &>/dev/null || quietly jq_set_file "$oc_file" 'del(.mcp.servers["agent-memory"])'; }; then
+    if [ "$oc_left" = true ]; then
+      ok "OpenCode" "Removed. Start a new session to unload it."
+    else
+      ok "OpenCode" "Already removed."
+    fi
+  else
+    fail "OpenCode" "Could not remove agent-memory from $(opencode_dir)."
+  fi
+fi
+
 has_codex && codex_marketplace_plugin_remove agent-memory agent-memory
 
 has_copilot_cli && copilot_marketplace_plugin_remove agent-memory agent-memory

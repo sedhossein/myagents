@@ -120,6 +120,19 @@ if has_cursor; then
   fi
 fi
 
+# OpenCode loads no plugins from here, so skills are linked into its skills folder,
+# the reviewer agents are generated as OpenCode agent files, and the rules go into a
+# marked albino block in its global AGENTS.md.
+if has_opencode; then
+  if quietly link_skills "$(opencode_dir)/skills" "$PLUGIN_SRC"/skills/*/ \
+    && quietly "$PLUGIN_SRC/scripts/gen-opencode-agents.sh" install "$(opencode_dir)/agents" \
+    && quietly "$PLUGIN_SRC/scripts/sync-rules.sh" install opencode "$(opencode_dir)/AGENTS.md"; then
+    ok "OpenCode" "Installed. Start a new session to load it."
+  else
+    fail "OpenCode" "Could not write the albino skills, agents, and rules into $(opencode_dir)."
+  fi
+fi
+
 if has_codex; then
   # Codex reads the plugin (skills, MCP servers, hooks) from the marketplace in
   # .agents/plugins/. Rerunning both commands refreshes Codex's cached copy.

@@ -122,6 +122,28 @@ if has_cursor; then
   fi
 fi
 
+if has_opencode; then
+  oc_names=()
+  for dir in "$PLUGIN_SRC"/skills/*/; do oc_names+=("$(basename "$dir")"); done
+  oc_left=false
+  for name in "${oc_names[@]}"; do [ -L "$(opencode_dir)/skills/$name" ] && oc_left=true; done
+  for file in "$PLUGIN_SRC"/agents/*.md; do
+    grep -qF "<!-- managed by myagents -->" "$(opencode_dir)/agents/$(basename "$file")" 2>/dev/null && oc_left=true
+  done
+  if quietly unlink_skills "$(opencode_dir)/skills" "${oc_names[@]}" \
+    && quietly "$PLUGIN_SRC/scripts/gen-opencode-agents.sh" uninstall "$(opencode_dir)/agents" \
+    && quietly "$PLUGIN_SRC/scripts/sync-rules.sh" uninstall opencode "$(opencode_dir)/AGENTS.md"; then
+    [ "$quiet_output" = "changed" ] && oc_left=true
+    if [ "$oc_left" = true ]; then
+      ok "OpenCode" "Removed. Start a new session to unload it."
+    else
+      ok "OpenCode" "Already removed."
+    fi
+  else
+    fail "OpenCode" "Could not remove the albino files from $(opencode_dir)."
+  fi
+fi
+
 # Codex: remove the plugin and marketplace, then the agents the generator wrote,
 # the albino block in AGENTS.md, and the command skills earlier installers
 # generated. Their markers keep hand-written files and text untouched.

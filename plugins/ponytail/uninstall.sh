@@ -37,6 +37,19 @@ case "$cleanup_result" in
   absent) has_cursor && ok "Cursor" "Already removed." ;;
 esac
 
+if has_opencode; then
+  oc_names=()
+  for dir in "$CHECKOUT_DIR"/skills/*/; do [ -f "$dir/SKILL.md" ] && oc_names+=("$(basename "$dir")"); done
+  oc_left=false
+  for name in ${oc_names[@]+"${oc_names[@]}"}; do [ -L "$(opencode_dir)/skills/$name" ] && oc_left=true; done
+  unlink_skills "$(opencode_dir)/skills" ${oc_names[@]+"${oc_names[@]}"}
+  if [ "$oc_left" = true ]; then
+    ok "OpenCode" "Removed. Start a new session to unload it."
+  else
+    ok "OpenCode" "Already removed."
+  fi
+fi
+
 rm -rf "$CHECKOUT_DIR"
 
 finish

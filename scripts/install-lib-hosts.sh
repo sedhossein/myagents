@@ -8,6 +8,11 @@
 # read personal skills from this folder, not from ~/.agents/skills.
 copilot_skills_dir() { echo "${COPILOT_HOME:-$HOME/.copilot}/skills"; }
 
+# OpenCode reads personal skills, agents, and instructions (AGENTS.md) from one
+# folder, and its MCP servers from the opencode.jsonc inside it.
+opencode_dir() { echo "${XDG_CONFIG_HOME:-$HOME/.config}/opencode"; }
+has_opencode() { command -v opencode &>/dev/null || [ -d "$(opencode_dir)" ]; }
+
 # Rewrites a JSON file with a jq filter (extra arguments go to jq), creating it
 # as {} first. Never leaves a half-written file behind.
 jq_set_file() {
