@@ -157,7 +157,8 @@ fi
 # JetBrains AI chat load what it installs. They also share two folders that work
 # without the CLI: personal skills in ~/.copilot/skills, and personal instructions,
 # which carry the rules. So the skills are linked in and the rules are written as
-# a marked block as well, which lists each skill a second time (as albino:<skill>).
+# a marked block as well. Copilot lists a skill once when two sources share its
+# name, and the linked one keeps the plain name (/reviewcrew, not /albino:reviewcrew).
 has_copilot_cli && copilot_marketplace_plugin "$MYAGENTS_DIR" "$MYAGENTS_MARKETPLACE" "$PLUGIN_NAME"
 if has_copilot; then
   copilot_ok=true

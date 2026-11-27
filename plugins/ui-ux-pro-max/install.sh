@@ -31,12 +31,21 @@ has_claude_code && claude_marketplace_plugin "$REPO_URL" ui-ux-pro-max-skill ui-
 has_cursor && uipro_install "Cursor" cursor "Start a new chat"
 has_codex && uipro_install "Codex" codex "Restart Codex"
 
-# The universal target installs into ~/.agents/skills, which Copilot does not read, so
-# its skills are linked into the folder Copilot does read.
+# Copilot does not read ~/.cursor/skills, so its skills are linked into the folder
+# it does read. They link to the copy another tool already installed (Cursor's, or
+# Codex's in ~/.agents/skills); only when there is none does the universal target
+# install one, so there is never a second copy of the same skills.
 if has_copilot; then
-  uipro_install "Copilot" universal "Start a new Copilot chat"
-  quietly link_skills "$(copilot_skills_dir)" "${UIPRO_SKILLS[@]/#/$HOME/.agents/skills/}" \
-    || fail "Copilot" "Could not link the skills into $(copilot_skills_dir)."
+  skills_from="$HOME/.cursor/skills"
+  if ! has_cursor; then
+    skills_from="$HOME/.agents/skills"
+    has_codex || uipro_install "Copilot" universal "Start a new Copilot chat"
+  fi
+  if quietly link_skills "$(copilot_skills_dir)" "${UIPRO_SKILLS[@]/#/$skills_from/}"; then
+    ok "Copilot" "Installed. Start a new Copilot chat to load it."
+  else
+    fail "Copilot" "Could not link the skills into $(copilot_skills_dir)."
+  fi
 fi
 
 finish
